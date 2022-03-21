@@ -35,13 +35,16 @@ function App() {
   const history = useHistory();
 
   React.useEffect(() => {
-    Promise.all([api.getUserInformation(), api.getCardsFromServer()])
-    .then(([user, cards]) => {
-      setCurrentUser(user)
-      setCards(cards)
-    })
-    .catch(err => console.log(err))
-  }, []);
+    if(loggedIn === true) {
+      Promise.all([api.getUserInformation(), api.getCardsFromServer()])
+      .then(([user, cards]) => {
+        setCurrentUser(user)
+        setCards(cards)
+      })
+      .catch(err => console.log(err))
+    }
+    
+  }, [loggedIn]);
 
   function closeAllPopups() {
     setEditAvatarPopupOpen(false);
@@ -175,7 +178,7 @@ function App() {
   function handleAuthorizationUser(res) {
     auth.authorizationUser(res)
       .then((res) => {
-        history.push('./mesto')
+        history.push('./')
         setLoggedIn(true)
         localStorage.setItem('jwt',res.token)
       })
@@ -187,21 +190,21 @@ function App() {
         }
       })
   }
-
-function tokenCheck() {
-  const jwt = localStorage.getItem('jwt');
-  if(jwt) {
-    auth.tokenCheck(jwt)
-      .then((res) => { 
-        setUserEmail(res.data.email)
-        setLoggedIn(true)
-      })
+  function tokenCheck() {
+    const jwt = localStorage.getItem('jwt');
+    if(jwt) {
+      auth.tokenCheck(jwt)
+        .then((res) => { 
+          setUserEmail(res.data.email)
+          setLoggedIn(true)
+        })
+        .catch((err) => console.log(err))
+    }
   }
-}
 
-React.useEffect(() => {
-  tokenCheck()
-}, [tokenCheck]);
+  React.useEffect(() => {
+    tokenCheck()  
+  }, []);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
@@ -210,8 +213,9 @@ React.useEffect(() => {
           <Switch>
           
           <ProtectedRoute
-            path="/mesto"
+            path="/"
             loggedIn={loggedIn}
+            exact
           >       
             <Main 
               popupDelete={handleDeletePlaceClick} 
@@ -258,8 +262,8 @@ React.useEffect(() => {
             /> 
           </ProtectedRoute>
           
-            <Route path="/sign-up" exact>
-              {loggedIn ? <Redirect to="/mesto" />  : <Redirect to="/sign-in" />}
+            <Route path="/sign-up">
+              {loggedIn ? <Redirect to="/" />  : <Redirect to="/sign-in" />}
               <Register reg={handleRegistrationUser} />
               <InfoTooltip 
               onClose={closeAllPopups} 
@@ -272,8 +276,8 @@ React.useEffect(() => {
               text='Вы успешно зарегистрировались!' 
               logo={logoSuc} />
             </Route>
-            <Route path="/sign-in" exact>
-              {loggedIn ? <Redirect to="/mesto" />  : <Redirect to="/sign-in" />}  
+            <Route path="/sign-in">
+              {loggedIn ? <Redirect to="/" />  : <Redirect to="/sign-in" />}  
               <Login auth={handleAuthorizationUser} />
               <InfoTooltip 
               onClose={closeAllPopups} 
@@ -287,7 +291,7 @@ React.useEffect(() => {
               logo={logoBad} />
             </Route>
             <Route path="*">
-              {loggedIn ? <Redirect to="/mesto" />  : <Redirect to="/sign-in" />}
+              {loggedIn ? <Redirect to="/" />  : <Redirect to="/sign-in" />}
             </Route>
           </Switch>
           <Footer />

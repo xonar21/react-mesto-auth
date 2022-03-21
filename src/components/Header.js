@@ -8,7 +8,6 @@ function Header(props) {
         localStorage.removeItem('jwt')
     }
     return (
-    <>
         <header className="header">
             <img className="header__logo" src={logo} alt="место"/>
             {loc.pathname === '/sign-in' ?
@@ -24,7 +23,6 @@ function Header(props) {
             }
               
         </header>
-    </>
     )
     
 }
