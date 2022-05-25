@@ -11,7 +11,7 @@ class Auth {
         return fetch(`${this._baseUrl.baseUrl}/signup`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
               },
             body: JSON.stringify({
                 password: res.password,
@@ -48,6 +48,6 @@ class Auth {
     
 }
 const auth = new Auth({
-  baseUrl: 'https://auth.nomoreparties.co',
+  baseUrl: 'https://bkmestoproject.nomoredomains.xyz',
 });
 export default auth;

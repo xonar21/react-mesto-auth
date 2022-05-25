@@ -9,19 +9,19 @@ function PopupWithForm(props) {
         onSubmit={props.onSubmit} 
         className={`form form_${props.name}`} 
         name={props.name}>
-          <h2 className={`form__title ${loc.pathname === '/mesto' ? '' : props.display}`}>{props.title}</h2>
+          <h2 className={`form__title ${loc.pathname === '/' ? '' : props.display}`}>{props.title}</h2>
               {props.children}
           <button 
           disabled={props.isDisabled} 
           onClick={props.onClose} 
-          className={`form__button form__button-edit ${loc.pathname === '/mesto' ? '' : props.display}`} 
+          className={`form__button form__button-edit ${loc.pathname === '/' ? '' : props.display}`} 
           type="submit">{props.saveValue ? props.buttonName+'...' : props.buttonName}
           </button>
           <img 
           src={props.src} 
-          className={`pop-up__logo ${loc.pathname === '/mesto' ? props.display : ''}`}>
+          className={`pop-up__logo ${loc.pathname === '/' ? props.display : ''}`}>
           </img>
-          <p className={`pop-up__title ${loc.pathname === '/mesto' ? props.display : ''}`}>{props.text}</p>
+          <p className={`pop-up__title ${loc.pathname === '/' ? props.display : ''}`}>{props.text}</p>
         </form>
         <button 
         onMouseUp={props.onClose} 
