@@ -109,6 +109,6 @@ class Api {
     }
 }
 const api = new Api({
-  baseUrl: 'http://mestoproject.nomoredomains.xyz',
+  baseUrl: 'https://bkmestoproject.nomoredomains.xyz',
 });
 export default api;
