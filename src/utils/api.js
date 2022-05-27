@@ -7,29 +7,29 @@ class Api {
         if (res.ok) return res.json();
         return Promise.reject(res.status);
     }
-    getUserInformation() {
+    getUserInformation(jwt) {
       return fetch(`${this._baseUrl.baseUrl}/users/me`, {    
         method: 'GET',
         headers: {
-          authorization: `${this._baseUrl.headers.authorization}`
+          authorization: `Bearer ${jwt}`
         }
       })
         .then(res => this._handleResponse(res))
     }
-    getCardsFromServer() {
+    getCardsFromServer(jwt) {
       return fetch(`${this._baseUrl.baseUrl}/cards`, {  
         method: 'GET',
           headers: {
-            authorization: `${this._baseUrl.headers.authorization}`
+            authorization: `Bearer ${jwt}`
           }
         })
         .then(res => this._handleResponse(res))
     }
-    pathEditProfile(info) {
+    pathEditProfile(info,jwt) {
       return fetch(`${this._baseUrl.baseUrl}/users/me`, {
         method: 'PATCH',
           headers: {
-            authorization: `${this._baseUrl.headers.authorization}`,
+            authorization: `Bearer ${jwt}`,
               'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -40,11 +40,11 @@ class Api {
             this._handleResponse(res)
           )
     }
-    postCard({name, link}) {
+    postCard({name, link}, jwt) {
       return fetch(`${this._baseUrl.baseUrl}/cards`, {
         method: 'POST',
           headers: {
-            authorization: `${this._baseUrl.headers.authorization}`,
+            authorization: `Bearer ${jwt}`,
               'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -54,51 +54,53 @@ class Api {
       })
       .then(res => res.json());  
     }
-    delCardFromServer(id) {
+    delCardFromServer(id,jwt) {
       return fetch(`${this._baseUrl.baseUrl}/cards/${id}`, {
         method: 'DELETE',
         headers: {
-          authorization: `${this._baseUrl.headers.authorization}`,
+          authorization: `Bearer ${jwt}`,
           'Content-Type': 'application/json'
         }
       })
       .then(res => res.json());
     }
 
-    changeLikeCardStatus(id, isLiked) {
+    changeLikeCardStatus(id, isLiked, jwt) {
       if(isLiked) {
-        return this.likeCard(id);
+        return this.likeCard(id,jwt);
       }
       else {
-        return this.unlikeCard(id);
+        return this.unlikeCard(id,jwt);
       }
     }
 
     likeCard(cardId) {
-      return fetch(`${this._baseUrl.baseUrl}/cards/likes/${cardId}`, {
+      const jwt = localStorage.getItem("jwt");
+      return fetch(`${this._baseUrl.baseUrl}/cards/${cardId}/likes`, {
         method: 'PUT',
         headers: {
-          authorization: `${this._baseUrl.headers.authorization}`,
+          authorization: `Bearer ${jwt}`,
           'Content-Type': 'application/json'
         }
       })
       .then(res => this._handleResponse(res));
     }
     unlikeCard(cardId) {
-      return fetch(`${this._baseUrl.baseUrl}/cards/likes/${cardId}`, {
+      const jwt = localStorage.getItem("jwt");
+      return fetch(`${this._baseUrl.baseUrl}/cards/${cardId}/likes`, {
         method: 'DELETE',
         headers: {
-          authorization: `${this._baseUrl.headers.authorization}`,
+          authorization: `Bearer ${jwt}`,
           'Content-Type': 'application/json'
         }
       })
       .then(res => this._handleResponse(res));
     }
-    patchAvatar(data) {
+    patchAvatar(data,jwt) {
       return fetch(`${this._baseUrl.baseUrl}/users/me/avatar`, {
         method: 'PATCH',
         headers: {
-          authorization: `${this._baseUrl.headers.authorization}`,
+          authorization: `Bearer ${jwt}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({avatar: data.avatar})
@@ -107,10 +109,6 @@ class Api {
     }
 }
 const api = new Api({
-  baseUrl: 'https://auth.nomoreparties.co',
-  headers: {
-    authorization: '4f1e5520-cc86-4d96-8418-3f1ecec3cfa5',
-    'Content-Type': 'application/json'
-  }
+  baseUrl: 'http://mestoproject.nomoredomains.xyz',
 });
 export default api;

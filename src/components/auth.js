@@ -48,6 +48,6 @@ class Auth {
     
 }
 const auth = new Auth({
-  baseUrl: 'https://bkmestoproject.nomoredomains.xyz',
+  baseUrl: 'http://mestoproject.nomoredomains.xyz',
 });
 export default auth;

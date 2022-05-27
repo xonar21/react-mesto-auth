@@ -33,18 +33,67 @@ function App() {
   const[loggedIn,setLoggedIn] = React.useState(false);
   const[userEmail,setUserEmail] = React.useState(' ');
   const history = useHistory();
+  function getToken() {
+    return localStorage.getItem("jwt");
+  }
+  // React.useEffect(() => {
+  //   const jwt = localStorage.getItem('jwt');
+  //   if(loggedIn === true) {
+  //     Promise.all([api.getUserInformation(jwt), api.getCardsFromServer(jwt)])
+  //     .then(([user, cards]) => {
+  //       setCurrentUser(user)
+  //       setCards(cards)
+  //     })
+  //     .catch(err => console.log(err))
+  //   }
+    
+  // }, [loggedIn]);
+
+
+  // function tokenCheck() {
+  //   const jwt = localStorage.getItem('jwt');
+  //   if(jwt) {
+  //     auth.tokenCheck(jwt)
+  //       .then((res) => { 
+  //         setUserEmail(res.data.email)
+  //         setLoggedIn(true)
+  //       })
+  //       .catch((err) => console.log(err))
+  //   }
+  // }
 
   React.useEffect(() => {
-    if(loggedIn === true) {
-      Promise.all([api.getUserInformation(), api.getCardsFromServer()])
-      .then(([user, cards]) => {
-        setCurrentUser(user)
-        setCards(cards)
-      })
-      .catch(err => console.log(err))
-    }
+    tokenCheck();
+  }, []);
+  
+
+  function tokenCheck() {
     
-  }, [loggedIn]);
+    const jwt = getToken();
+    console.log(jwt)
+    if (jwt) {
+      Promise.all([api.getUserInformation(jwt), api.getCardsFromServer(jwt)])
+        .then(([userInfo, initialCards]) => {
+          setCurrentUser(userInfo);
+          setCards(initialCards);
+          setLoggedIn(true);
+          history.push("/");
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+      auth.tokenCheck(jwt)
+        .then((res) => { 
+          setUserEmail(res.email)
+          setLoggedIn(true)
+        })
+        .catch((err) => console.log(err))  
+    }
+  }
+
+
+ 
+
 
   function closeAllPopups() {
     setEditAvatarPopupOpen(false);
@@ -56,17 +105,17 @@ function App() {
     setSelectedCard({});
   }
 
-  React.useEffect(() => {
-    const handleEscClose = (e) => {
-      if (e.key === "Escape") {
-        closeAllPopups();
-      }
-    };
+  // React.useEffect(() => {
+  //   const handleEscClose = (e) => {
+  //     if (e.key === "Escape") {
+  //       closeAllPopups();
+  //     }
+  //   };
 
-    document.addEventListener("keydown", handleEscClose);
+  //   document.addEventListener("keydown", handleEscClose);
 
-    return () => document.removeEventListener("keydown", handleEscClose);
-  }, []); 
+  //   return () => document.removeEventListener("keydown", handleEscClose);
+  // }, []); 
 
   function handleCardClick(card) {
     setSelectedCard(card);
@@ -89,21 +138,39 @@ function App() {
     setDeletePlacePopupOpen(true);
   }
 
+  // function handleCardLike(card) {
+  //   const jwt = getToken();
+  //   const isLiked = card.likes.some(i => i === currentUser._id);
+  //   api.changeLikeCardStatus(card._id, !isLiked, jwt)
+  //     .then((newCard) => {
+  //       setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
+
   function handleCardLike(card) {
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
-    api.changeLikeCardStatus(card._id, !isLiked)
-      .then((newCard) => {
-        setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+    
+    // Проверяем, есть ли уже лайк на этой карточке
+    const isLiked = card.likes.some(i => i === currentUser._id);
+    // Отправляем запрос в API и получаем обновлённые данные карточки
+    const changeLike = isLiked ? api.unlikeCard(card._id) : api.likeCard(card._id)
+    changeLike.then((newCard) => {
+      // Формируем новый массив на основе имеющегося, подставляя в него новую карточку
+      const newCards = cards.map((c) => c._id === card._id ? newCard : c);
+      // Обновляем стейт
+      setCards(newCards);
+    })
+    .catch(error => console.log(error));
+  }
+
 
   function handleCardDelete(evt) {
     setSaveValue(true);
+    const jwt = getToken();
     evt.preventDefault();
-    api.delCardFromServer(cardDelete._id)
+    api.delCardFromServer(cardDelete._id,jwt)
       .then(() => {
         const newCards = cards.filter((elem) => elem !== cardDelete);
         setCards(newCards);
@@ -118,9 +185,10 @@ function App() {
 
   function handleUpdateUser(res) {
     setSaveValue(true);
-    api.pathEditProfile(res)
+    const jwt = getToken();
+    api.pathEditProfile(res,jwt)
       .then((res) => {
-        setCurrentUser(res);
+        setCurrentUser(res.data);
         closeAllPopups();
       })
       .catch((err) => {
@@ -133,9 +201,10 @@ function App() {
 
   function handleUpdateAvatar(res) {
     setSaveValue(true);
-    api.patchAvatar(res)
+    const jwt = getToken();
+    api.patchAvatar(res,jwt)
       .then((res) => {
-        setCurrentUser(res);
+        setCurrentUser(res.data);
         closeAllPopups();
       })
       .catch((err) => {
@@ -147,10 +216,13 @@ function App() {
   }
 
   function handleUpdateCards(res) {
+    
     setSaveValue(true);
-    api.postCard(res)
-      .then((res) => {
-        setCards([res, ...cards]); 
+    const jwt = getToken();
+    api.postCard(res,jwt)
+      .then((card) => {
+        console.log(card)
+        setCards([card, ...cards]); 
         closeAllPopups();
       })
       .catch((err) => {
@@ -181,30 +253,17 @@ function App() {
         history.push('./')
         setLoggedIn(true)
         localStorage.setItem('jwt',res.token)
+        tokenCheck();
       })
-      .then(() => tokenCheck())
       .catch((err) => {
         if(err === 401) {
           setBadLoginPopupOpen(true)
           console.log('Некорректный пароль или email')
         }
       })
+      
+      
   }
-  function tokenCheck() {
-    const jwt = localStorage.getItem('jwt');
-    if(jwt) {
-      auth.tokenCheck(jwt)
-        .then((res) => { 
-          setUserEmail(res.data.email)
-          setLoggedIn(true)
-        })
-        .catch((err) => console.log(err))
-    }
-  }
-
-  React.useEffect(() => {
-    tokenCheck()  
-  }, []);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
