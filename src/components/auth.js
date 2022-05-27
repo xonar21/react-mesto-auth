@@ -36,6 +36,7 @@ class Auth {
         };    
     
     tokenCheck(res) {
+        console.log(res)
         return fetch(`${this._baseUrl.baseUrl}/users/me`, {
             method: 'GET',
             headers: {
@@ -48,6 +49,6 @@ class Auth {
     
 }
 const auth = new Auth({
-  baseUrl: 'https://bkmestoproject.nomoredomains.xyz',
+  baseUrl: 'http://bkmestoproject.nomoredomains.xyz',
 });
 export default auth;

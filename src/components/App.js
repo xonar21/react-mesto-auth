@@ -36,37 +36,11 @@ function App() {
   function getToken() {
     return localStorage.getItem("jwt");
   }
-  // React.useEffect(() => {
-  //   const jwt = localStorage.getItem('jwt');
-  //   if(loggedIn === true) {
-  //     Promise.all([api.getUserInformation(jwt), api.getCardsFromServer(jwt)])
-  //     .then(([user, cards]) => {
-  //       setCurrentUser(user)
-  //       setCards(cards)
-  //     })
-  //     .catch(err => console.log(err))
-  //   }
-    
-  // }, [loggedIn]);
-
-
-  // function tokenCheck() {
-  //   const jwt = localStorage.getItem('jwt');
-  //   if(jwt) {
-  //     auth.tokenCheck(jwt)
-  //       .then((res) => { 
-  //         setUserEmail(res.data.email)
-  //         setLoggedIn(true)
-  //       })
-  //       .catch((err) => console.log(err))
-  //   }
-  // }
 
   React.useEffect(() => {
     tokenCheck();
   }, []);
   
-
   function tokenCheck() {
     
     const jwt = getToken();
@@ -91,10 +65,6 @@ function App() {
     }
   }
 
-
- 
-
-
   function closeAllPopups() {
     setEditAvatarPopupOpen(false);
     setEditProfilePopupOpen(false);
@@ -104,18 +74,6 @@ function App() {
     setBadLoginPopupOpen(false);
     setSelectedCard({});
   }
-
-  // React.useEffect(() => {
-  //   const handleEscClose = (e) => {
-  //     if (e.key === "Escape") {
-  //       closeAllPopups();
-  //     }
-  //   };
-
-  //   document.addEventListener("keydown", handleEscClose);
-
-  //   return () => document.removeEventListener("keydown", handleEscClose);
-  // }, []); 
 
   function handleCardClick(card) {
     setSelectedCard(card);
@@ -138,33 +96,18 @@ function App() {
     setDeletePlacePopupOpen(true);
   }
 
-  // function handleCardLike(card) {
-  //   const jwt = getToken();
-  //   const isLiked = card.likes.some(i => i === currentUser._id);
-  //   api.changeLikeCardStatus(card._id, !isLiked, jwt)
-  //     .then((newCard) => {
-  //       setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // };
-
   function handleCardLike(card) {
     
-    // Проверяем, есть ли уже лайк на этой карточке
+
     const isLiked = card.likes.some(i => i === currentUser._id);
-    // Отправляем запрос в API и получаем обновлённые данные карточки
+
     const changeLike = isLiked ? api.unlikeCard(card._id) : api.likeCard(card._id)
     changeLike.then((newCard) => {
-      // Формируем новый массив на основе имеющегося, подставляя в него новую карточку
       const newCards = cards.map((c) => c._id === card._id ? newCard : c);
-      // Обновляем стейт
       setCards(newCards);
     })
     .catch(error => console.log(error));
   }
-
 
   function handleCardDelete(evt) {
     setSaveValue(true);
@@ -261,8 +204,7 @@ function App() {
           console.log('Некорректный пароль или email')
         }
       })
-      
-      
+     
   }
 
   return (
